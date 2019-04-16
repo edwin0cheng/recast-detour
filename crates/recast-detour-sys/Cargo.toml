@@ -1,0 +1,14 @@
+[package]
+name = "recast-detour-sys"
+version = "0.1.0"
+authors = ["Edwin Cheng <edwin@m-inverse.com>"]
+edition = "2018"
+
+[dependencies]
+
+[build-dependencies]
+cmake = "0.1"
+
+[features]
+skip-build-recast = []
+default = []

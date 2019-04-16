@@ -1,0 +1,7 @@
+/target
+**/*.rs.bk
+Cargo.lock
+/.vscode/settings.json
+/.vscode/ipch/**
+
+/crates/recast-detour-sys/recast/build/**
