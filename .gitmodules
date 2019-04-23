@@ -1,3 +1,4 @@
 [submodule "crates/recast-detour-sys/recast/recastnavigation"]
 	path = crates/recast-detour-sys/recast/recastnavigation
 	url = https://github.com/recastnavigation/recastnavigation.git
+	ignore = dirty
