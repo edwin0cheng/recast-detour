@@ -4,4 +4,7 @@ Cargo.lock
 /.vscode/settings.json
 /.vscode/ipch/**
 
+**/*.rs.pending-snap
+
 /crates/recast-detour-sys/recast/build/**
+.vscode/c_cpp_properties.json

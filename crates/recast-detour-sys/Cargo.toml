@@ -6,6 +6,9 @@ edition = "2018"
 
 [dependencies]
 
+[dev-dependencies]
+insta = "0.7.4"
+
 [build-dependencies]
 cmake = "0.1"
 
