@@ -23,12 +23,33 @@ extern "C"
     typedef struct {
         float center[3];
         float half_extents[3];
-    } recastc_NearestPoint;
+    } recastc_NearestPointInput;
 
     typedef struct {
-        float point[3];
+        float pos[3];
         uint32_t poly;
     }  recastc_NearestPointResult;
+
+    typedef struct {
+        float pos[3];
+        uint32_t poly;
+    } recastc_ClosestPointInput;
+
+    typedef struct {
+        float pos[3];
+    } recastc_ClosestPointResult;
+
+    typedef struct {
+        uint32_t start_poly;
+        uint32_t end_poly;        
+        float start_pos[3];
+        float end_pos[3];    
+    } recastc_PathInput;
+
+    typedef struct {
+        uint32_t path[100];        
+        uint32_t path_count;
+    } recastc_PathResult;
 
     typedef struct {
         // FIXME: Just random choose size
@@ -39,10 +60,23 @@ extern "C"
 
     struct recastc_Query *recastc_create_query(recastc_NavMesh* qparam, recastc_Error* error);
     
+    /// This function returns the nearst point without using the details mesh
     int32_t recastc_find_nearest_point(struct recastc_Query* query, 
-        const recastc_NearestPoint* input, 
+        const recastc_NearestPointInput* input, 
         recastc_NearestPointResult* result,
         recastc_Error* error);
+
+    /// This function return the closest point with details mesh
+    int32_t recastc_find_closest_point(struct recastc_Query* query, 
+        const recastc_ClosestPointInput* input,
+        recastc_ClosestPointResult* result,
+        recastc_Error* error);
+    
+    int32_t recastc_find_path(struct recastc_Query* query, 
+        const recastc_PathInput* input,
+        recastc_PathResult* result,
+        recastc_Error* error);
+
 
     void recastc_free_query(struct recastc_Query* query);
 }

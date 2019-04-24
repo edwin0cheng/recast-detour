@@ -519,22 +519,113 @@ extern "C"
 	}
 
 	int32_t recastc_find_nearest_point(struct recastc_Query* query, 
-        const recastc_NearestPoint* input, 
+        const recastc_NearestPointInput* input, 
         recastc_NearestPointResult* result,
         recastc_Error* error) 
 	{
 		assert(query);
 		assert(query->q);
-		assert(query);
 		assert(input);
 		assert(result);		
 		assert(sizeof(dtPolyRef) == sizeof(uint32_t));
 
 		query->filter.setIncludeFlags(POLYFLAGS_WALK);
+		dtStatus status = query->q->findNearestPoly(input->center, input->half_extents, &query->filter, &result->poly, result->pos);
 
-		float nearestPt[4];
-		dtStatus status = query->q->findNearestPoly(input->center, input->half_extents, &query->filter, &result->poly, result->point);
+		if (dtStatusFailed(status))
+		{
+			RETURN_ERROR("Fail to find nearest poly");
+		}
 
+		return 1;
+	}
+
+	int32_t recastc_find_closest_point(struct recastc_Query* query, 
+        const recastc_ClosestPointInput* input,
+        recastc_ClosestPointResult* result,
+        recastc_Error* error)
+	{
+		assert(query);	
+		assert(query->q);	
+		assert(input);
+		assert(result);
+
+		query->filter.setIncludeFlags(POLYFLAGS_WALK);
+		
+		dtStatus status = query->q->closestPointOnPoly(input->poly, input->pos, result->pos, 0);
+
+		if (dtStatusFailed(status))
+		{
+			RETURN_ERROR("Fail to find nearest poly");
+		}
+
+	 	return 1;
+	}
+
+	
+
+	// m_navQuery->closestPointOnPoly(m_startRef, m_spos, m_iterPos, 0);
+
+	// int32_t recastc_find_path(struct recastc_Query* query, recastc_Error* error) {
+	// 	assert(query);
+	// 	assert(query->q);		
+
+	// 	dtPolyRef startRef;
+	// 	dtPolyRef endRef;
+
+	// 	const float* startPos;
+	// 	const float* endPos;
+
+	// 	query->filter.setIncludeFlags(POLYFLAGS_WALK);
+
+	// 	int pathCount;
+	// 	int maxPath;
+
+	// 	dtPolyRef path[maxPath];
+
+		
+		
+	// 	/// Finds a path from the start polygon to the end polygon.
+	// 	///  @param[in]		startRef	The refrence id of the start polygon.
+	// 	///  @param[in]		endRef		The reference id of the end polygon.
+	// 	///  @param[in]		startPos	A position within the start polygon. [(x, y, z)]
+	// 	///  @param[in]		endPos		A position within the end polygon. [(x, y, z)]
+	// 	///  @param[in]		filter		The polygon filter to apply to the query.
+	// 	///  @param[out]	path		An ordered list of polygon references representing the path. (Start to end.) 
+	// 	///  							[(polyRef) * @p pathCount]
+	// 	///  @param[out]	pathCount	The number of polygons returned in the @p path array.
+	// 	///  @param[in]		maxPath		The maximum number of polygons the @p path array can hold. [Limit: >= 1]
+	
+
+	// 	return 1;
+	// }
+
+	int32_t recastc_find_path(struct recastc_Query* query, 
+        const recastc_PathInput* input,
+        recastc_PathResult* result,
+        recastc_Error* error)
+	{
+		assert(query);	
+		assert(query->q);	
+		assert(input);
+		assert(result);
+
+		query->filter.setIncludeFlags(POLYFLAGS_WALK);	
+
+		int count = 0;
+				
+		dtStatus status = query->q->findPath(
+			input->start_poly, 
+			input->end_poly, 
+			input->start_pos,
+			input->end_pos,			
+			&query->filter,
+			result->path,
+			&count,
+			sizeof(result->path) / sizeof(uint32_t)
+		);
+		
+		result->path_count = count;
 		if (dtStatusFailed(status))
 		{
 			RETURN_ERROR("Fail to find nearest poly");

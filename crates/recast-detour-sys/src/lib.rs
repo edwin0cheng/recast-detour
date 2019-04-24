@@ -20,7 +20,7 @@ pub struct RecastNavMeshData {
 
 #[derive(Debug)]
 #[repr(C)]
-pub struct RecastNearestPoint {
+pub struct RecastNearestPointInput {
     pub center: [f32; 3],
     pub half_extents: [f32; 3],
 }
@@ -28,8 +28,56 @@ pub struct RecastNearestPoint {
 #[derive(Default, Debug)]
 #[repr(C)]
 pub struct RecastNearestPointResult {
-    pub point: [f32; 3],
+    pub pos: [f32; 3],
     pub poly: u32,
+}
+
+#[derive(Debug)]
+#[repr(C)]
+pub struct RecastClosestPointInput {
+    pub pos: [f32; 3],
+    pub poly: u32,
+}
+
+#[derive(Default, Debug)]
+#[repr(C)]
+pub struct RecastClosestPointResult {
+    pub pos: [f32; 3],
+}
+
+#[derive(Default, Debug)]
+#[repr(C)]
+pub struct RecastPathInput {
+    start_poly: u32,
+    end_poly: u32,
+    start_pos: [f32; 3],
+    end_pos: [f32; 3],
+}
+
+#[repr(C)]
+pub struct RecastPathResult {
+    path: [u32; 100],
+    path_count: u32,
+}
+
+impl Default for RecastPathResult {
+    fn default() -> RecastPathResult {
+        RecastPathResult {
+            path: [0; 100],
+            path_count: 0,
+        }
+    }
+}
+
+impl std::fmt::Debug for RecastPathResult {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "Point {{ path_count: {}, path: {:?} }}",
+            self.path_count,
+            &self.path[0..(self.path_count as usize)]
+        )
+    }
 }
 
 #[repr(C)]
@@ -70,8 +118,23 @@ extern "C" {
     /// Return 0 if fail
     pub fn recastc_find_nearest_point(
         query: *const c_void,
-        input: *const RecastNearestPoint,
+        input: *const RecastNearestPointInput,
         result: *mut RecastNearestPointResult,
+        error: *mut RecastNavError,
+    ) -> i32;
+
+    /// Return 0 if fail    
+    pub fn recastc_find_closest_point(
+        query: *const c_void,
+        input: *const RecastClosestPointInput,
+        result: *mut RecastClosestPointResult,
+        error: *mut RecastNavError,
+    ) -> i32;
+
+    pub fn recastc_find_path(
+        query: *const c_void,
+        input: *const RecastPathInput,
+        result: *mut RecastPathResult,
         error: *mut RecastNavError,
     ) -> i32;
 
@@ -115,8 +178,8 @@ mod tests {
             vert_count: (verts.len() as u32) / 3,
             indices: &indices[0] as *const _,
             triangles_count: (indices.len() as u32) / 3,
-            bmin: bmin,
-            bmax: bmax,
+            bmin,
+            bmax,
             walkable_height: 0.1,
             walkable_radius: 0.1,
             walkable_climb: 0.1,
@@ -156,7 +219,7 @@ mod tests {
 
         let q = setup_query(verts, indices);
 
-        let input = RecastNearestPoint {
+        let input = RecastNearestPointInput {
             center: [0.2, 0.1, 0.5],
             half_extents: [0.2, 0.2, 0.2],
         };
@@ -183,12 +246,92 @@ mod tests {
         );
 
         assert_debug_snapshot_matches!(result, @r###"RecastNearestPointResult {
-    point: [
+    pos: [
         0.2,
         0.0,
         0.5
     ],
     poly: 3
 }"###);
+    }
+
+    #[test]
+    fn test_find_closest_point() {
+        let verts: &[u16] = &[0, 0, 0, 10, 0, 0, 10, 0, 10, 0, 0, 10];
+        let indices: &[u16] = &[0, 1, 2, 0, 2, 3];
+
+        let q = setup_query(verts, indices);
+
+        let input = RecastClosestPointInput {
+            pos: [0.2, 0.1, 0.5],
+            poly: 3,
+        };
+
+        let mut result = RecastClosestPointResult::default();
+        let mut err = RecastNavError::zeros();
+        let r = unsafe {
+            recastc_find_closest_point(
+                q.as_ptr(),
+                &input as *const _,
+                &mut result as *mut _,
+                &mut err as *mut _,
+            )
+        };
+
+        unsafe {
+            recastc_free_query(q.as_ptr());
+        }
+
+        assert!(
+            r != 0,
+            "Failed on recastc_create_query, reason : {}",
+            err.msg()
+        );
+
+        assert_debug_snapshot_matches!(result, @r###"RecastClosestPointResult {
+    pos: [
+        0.2,
+        0.0,
+        0.5
+    ]
+}"###);
+    }
+
+    #[test]
+    fn test_find_path() {
+        let verts: &[u16] = &[0, 0, 0, 10, 0, 0, 10, 0, 10, 0, 0, 10];
+        let indices: &[u16] = &[0, 1, 2, 0, 2, 3];
+
+        let q = setup_query(verts, indices);
+
+        let input = RecastPathInput {
+            start_poly: 3,
+            start_pos: [0.2, 0.1, 0.5],
+            end_poly: 2,
+            end_pos: [0.8, 0.1, 0.5],
+        };
+
+        let mut result = RecastPathResult::default();
+        let mut err = RecastNavError::zeros();
+        let r = unsafe {
+            recastc_find_path(
+                q.as_ptr(),
+                &input as *const _,
+                &mut result as *mut _,
+                &mut err as *mut _,
+            )
+        };
+
+        unsafe {
+            recastc_free_query(q.as_ptr());
+        }
+
+        assert!(
+            r != 0,
+            "Failed on recastc_create_query, reason : {}",
+            err.msg()
+        );
+
+        assert_debug_snapshot_matches!(result, @"Point { path_count: 2, path: [3, 2] }");
     }
 }
