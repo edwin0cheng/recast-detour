@@ -1,6 +1,6 @@
-# A simplified (detour only) rust binding for Recast & Detour library 
+# recast-detour-rs
 
-## This project do not and will not be a full function Recast & Detour library. 
+### This project do not and will not be a full function Recast & Detour library. 
 
 This project do the followings things
 
