@@ -1,7 +1,7 @@
 [package]
 name = "recast-detour-rs"
 version = "0.1.0"
-authors = ["Edwin Cheng <edwin@m-inverse.com>"]
+authors = ["Edwin Cheng <edwin0cheng@gmail.com>"]
 edition = "2018"
 
 [dev-dependencies]
