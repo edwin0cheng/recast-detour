@@ -2,6 +2,10 @@ use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
 
+mod nav_obj;
+
+pub use nav_obj::NavObjFile;
+
 #[derive(Debug)]
 pub struct RecastQuery {
     q: ptr::NonNull<c_void>,
@@ -22,7 +26,7 @@ pub enum Error {
 
 type Result<T> = std::result::Result<T, Error>;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct NavMeshData {
     /// Vertices in world unit, length = 3 * Number of Vertices
     vertices: Vec<f32>,
