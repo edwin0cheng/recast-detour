@@ -390,7 +390,7 @@ static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 
 static void write_error(const char* msg, recastc_Error* error) {
 	assert(strlen(msg) < 255);
-	strcpy(error->msg, msg);
+	strcpy(error->msg, msg);	
 }
 
 #define RETURN_ERROR(MSG)		do {  write_error(MSG, error); return 0;  } while(0)
@@ -556,7 +556,7 @@ extern "C"
 
 		if (dtStatusFailed(status))
 		{
-			RETURN_ERROR("Fail to find nearest poly");
+			RETURN_ERROR("Fail to find closest point");
 		}
 
 	 	return 1;
@@ -628,7 +628,7 @@ extern "C"
 		result->path_count = count;
 		if (dtStatusFailed(status))
 		{
-			RETURN_ERROR("Fail to find nearest poly");
+			RETURN_ERROR("Fail to find path");
 		}
 
 		return 1;

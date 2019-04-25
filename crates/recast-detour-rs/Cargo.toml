@@ -1,0 +1,11 @@
+[package]
+name = "recast-detour-rs"
+version = "0.1.0"
+authors = ["Edwin Cheng <edwin@m-inverse.com>"]
+edition = "2018"
+
+[dev-dependencies]
+insta = "0.7.4"
+
+[dependencies]
+sys = { path = "../recast-detour-sys", package = "recast-detour-sys" }

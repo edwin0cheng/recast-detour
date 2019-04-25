@@ -2,6 +2,7 @@ use std::borrow;
 use std::fmt;
 use std::os::raw::{c_char, c_void};
 
+#[derive(Debug)]
 #[repr(C)]
 pub struct RecastNavMeshData {
     pub verts: *const u16,
@@ -48,16 +49,16 @@ pub struct RecastClosestPointResult {
 #[derive(Default, Debug)]
 #[repr(C)]
 pub struct RecastPathInput {
-    start_poly: u32,
-    end_poly: u32,
-    start_pos: [f32; 3],
-    end_pos: [f32; 3],
+    pub start_poly: u32,
+    pub end_poly: u32,
+    pub start_pos: [f32; 3],
+    pub end_pos: [f32; 3],
 }
 
 #[repr(C)]
 pub struct RecastPathResult {
-    path: [u32; 100],
-    path_count: u32,
+    pub path: [u32; 100],
+    pub path_count: u32,
 }
 
 impl Default for RecastPathResult {
@@ -82,7 +83,7 @@ impl std::fmt::Debug for RecastPathResult {
 
 #[repr(C)]
 pub struct RecastNavError {
-    pub msg: [u8; 256],
+    pub msg: [i8; 256],
 }
 
 impl RecastNavError {
@@ -93,9 +94,11 @@ impl RecastNavError {
 
 impl RecastNavError {
     pub fn msg(&self) -> borrow::Cow<str> {
-        match std::str::from_utf8(&self.msg) {
-            Ok(s) => s.into(),
-            Err(err) => format!("fail to decode error from utf8 : reason : {:?}", err).into(),
+        unsafe {
+            match std::ffi::CStr::from_ptr(&self.msg as *const c_char).to_str() {
+                Ok(s) => s.into(),
+                Err(err) => format!("fail to decode error from utf8 : reason : {:?}", err).into(),
+            }
         }
     }
 }

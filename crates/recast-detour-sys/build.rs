@@ -6,7 +6,7 @@ fn main() {
         use std::path::Path;
 
         fn print_path(path: &Path) {
-            if let Some(path) = path.to_str() {                
+            if let Some(path) = path.to_str() {
                 println!("cargo:rerun-if-changed={}", path);
             }
         }
@@ -20,8 +20,7 @@ fn main() {
                     let path = entry.path();
                     if path.is_dir() {
                         print_dirs(&path)?;
-                    }
-                    else {
+                    } else {
                         print_path(&path);
                     }
                 }
@@ -30,10 +29,10 @@ fn main() {
         }
 
         let dst = cmake::build("recast");
-        
+
         println!("cargo:rerun-if-changed={}", "build.rc");
         let _ = print_dirs(Path::new("recast"));
-        
+
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
         println!("cargo:rustc-link-lib=static=RecastC");
         println!("cargo:rustc-link-lib=static=Detour");
