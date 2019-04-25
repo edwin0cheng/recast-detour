@@ -1,5 +1,8 @@
 # recast-detour-rs
 
+[Latest Version]: https://img.shields.io/crates/v/recast-detour-rs.svg
+[crates.io]: https://crates.io/crates/recast-detour-rs
+
 ### This project do not and will not be a full function Recast & Detour library. 
 
 This project do the followings things
