@@ -518,9 +518,9 @@ extern "C"
 		delete query;
 	}
 
-	int32_t recastc_find_nearest_point(struct recastc_Query* query, 
-        const recastc_NearestPointInput* input, 
-        recastc_NearestPointResult* result,
+	int32_t recastc_find_nearest_poly(struct recastc_Query* query, 
+        const recastc_NearestPolyInput* input, 
+        recastc_NearestPolyResult* result,
         recastc_Error* error) 
 	{
 		assert(query);

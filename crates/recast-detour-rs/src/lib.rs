@@ -189,16 +189,16 @@ impl RecastQuery {
     }
 
     fn find_poly(&self, pos: Point, r: f32) -> Result<(Point, u32)> {
-        let mut result = sys::RecastNearestPointResult::default();
+        let mut result = sys::RecastNearestPolyResult::default();
         let mut err = sys::RecastNavError::zeros();
 
-        let input = sys::RecastNearestPointInput {
+        let input = sys::RecastNearestPolyInput {
             center: pos.0,
             half_extents: [r, r, r],
         };
 
         let res = unsafe {
-            sys::recastc_find_nearest_point(
+            sys::recastc_find_nearest_poly(
                 self.q.as_ptr(),
                 &input as *const _,
                 &mut result as *mut _,

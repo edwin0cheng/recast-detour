@@ -21,14 +21,14 @@ pub struct RecastNavMeshData {
 
 #[derive(Debug)]
 #[repr(C)]
-pub struct RecastNearestPointInput {
+pub struct RecastNearestPolyInput {
     pub center: [f32; 3],
     pub half_extents: [f32; 3],
 }
 
 #[derive(Default, Debug)]
 #[repr(C)]
-pub struct RecastNearestPointResult {
+pub struct RecastNearestPolyResult {
     pub pos: [f32; 3],
     pub poly: u32,
 }
@@ -119,10 +119,10 @@ extern "C" {
     ) -> *const c_void;
 
     /// Return 0 if fail
-    pub fn recastc_find_nearest_point(
+    pub fn recastc_find_nearest_poly(
         query: *const c_void,
-        input: *const RecastNearestPointInput,
-        result: *mut RecastNearestPointResult,
+        input: *const RecastNearestPolyInput,
+        result: *mut RecastNearestPolyResult,
         error: *mut RecastNavError,
     ) -> i32;
 
@@ -222,15 +222,15 @@ mod tests {
 
         let q = setup_query(verts, indices);
 
-        let input = RecastNearestPointInput {
+        let input = RecastNearestPolyInput {
             center: [0.2, 0.1, 0.5],
             half_extents: [0.2, 0.2, 0.2],
         };
 
-        let mut result = RecastNearestPointResult::default();
+        let mut result = RecastNearestPolyResult::default();
         let mut err = RecastNavError::zeros();
         let r = unsafe {
-            recastc_find_nearest_point(
+            recastc_find_nearest_poly(
                 q.as_ptr(),
                 &input as *const _,
                 &mut result as *mut _,
@@ -248,7 +248,7 @@ mod tests {
             err.msg()
         );
 
-        assert_debug_snapshot_matches!(result, @r###"RecastNearestPointResult {
+        assert_debug_snapshot_matches!(result, @r###"RecastNearestPolyResult {
     pos: [
         0.2,
         0.0,

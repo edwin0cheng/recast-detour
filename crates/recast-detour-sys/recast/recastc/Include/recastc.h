@@ -23,12 +23,12 @@ extern "C"
     typedef struct {
         float center[3];
         float half_extents[3];
-    } recastc_NearestPointInput;
+    } recastc_NearestPolyInput;
 
     typedef struct {
         float pos[3];
         uint32_t poly;
-    }  recastc_NearestPointResult;
+    }  recastc_NearestPolyResult;
 
     typedef struct {
         float pos[3];
@@ -60,10 +60,10 @@ extern "C"
 
     struct recastc_Query *recastc_create_query(recastc_NavMesh* qparam, recastc_Error* error);
     
-    /// This function returns the nearst point without using the details mesh
-    int32_t recastc_find_nearest_point(struct recastc_Query* query, 
-        const recastc_NearestPointInput* input, 
-        recastc_NearestPointResult* result,
+    /// This function returns the nearest poly
+    int32_t recastc_find_nearest_poly(struct recastc_Query* query, 
+        const recastc_NearestPolyInput* input, 
+        recastc_NearestPolyResult* result,
         recastc_Error* error);
 
     /// This function return the closest point with details mesh
