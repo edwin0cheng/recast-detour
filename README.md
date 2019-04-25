@@ -1,5 +1,4 @@
-# recast-detour-rs
-
+# recast-detour-rs  &emsp; [![Latest Version]][crates.io]
 [Latest Version]: https://img.shields.io/crates/v/recast-detour-rs.svg
 [crates.io]: https://crates.io/crates/recast-detour-rs
 
