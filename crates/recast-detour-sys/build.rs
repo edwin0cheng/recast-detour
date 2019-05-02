@@ -30,7 +30,7 @@ fn main() {
 
         let dst = cmake::build("recast");
 
-        println!("cargo:rerun-if-changed={}", "build.rc");
+        println!("cargo:rerun-if-changed={}", "build.rs");
         let _ = print_dirs(Path::new("recast"));
 
         println!("cargo:rustc-link-search=native={}/lib", dst.display());
