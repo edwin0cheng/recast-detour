@@ -1,6 +1,6 @@
 [package]
 name = "recast-detour-sys"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Edwin Cheng <edwin0cheng@gmail.com>"]
 edition = "2018"
 description = "A simplified (detour only) rust binding for Recast & Detour library (sys crate)"
