@@ -182,8 +182,8 @@ impl RecastQuery {
     }
 
     pub fn find_path(&self, start: Point, end: Point, r: f32) -> Result<Vec<Point>> {
-        let (start_p, start_poly) = dbg!(self.find_poly(start, r))?;
-        let (end_p, end_poly) = dbg!(self.find_poly(end, r))?;
+        let (start_p, start_poly) = self.find_poly(start, r)?;
+        let (end_p, end_poly) = self.find_poly(end, r)?;
 
         if start_poly == end_poly {
             return Ok(vec![end_p]);
