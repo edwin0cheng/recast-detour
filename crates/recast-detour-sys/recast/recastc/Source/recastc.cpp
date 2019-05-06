@@ -16,374 +16,6 @@ struct recastc_Query
 static bool buildMeshAdjacency(unsigned short* polys, const int npolys,
 							   const int nverts, const int vertsPerPoly);
 
-// void f()
-// {
-// #define TILEWID 128 //default
-
-// #define TILEHGT 128 //default
-
-// #define WORLD 0
-
-// #define _SCALE 3
-
-// #define _HGTSCALE 5
-
-// #define MAXVerts 30000 //temporary
-
-// #define MAXPolys 10000 //temporary
-
-// #define MAXREFS 30000 //temporary
-
-// 	long lSize;
-// 	int numVerts, numInds, numAreas, numPolys;
-// 	int i;
-
-// 	uint *arData;			// area data
-// 	float *vertData;			// read vertial Data
-// 	uint *polys;			// read triangle indices
-
-// 	// Step 1 compute bounding box
-
-// 	float highX = 0, highY = 0, highZ = 0;
-
-// 	for (int i = 0; i < numVerts * 3; i += 3)
-// 	{
-
-// 		if (vertData[i] > highX)
-// 			highX = vertData[i];
-
-// 		if (vertData[i + 1] > highY)
-// 			highY = vertData[i + 1];
-
-// 		if (vertData[i + 2] > highZ)
-// 			highZ = vertData[i + 2];
-
-// 		//        vertData[i]*=_SCALE; vertData[i+1]*=_HGTSCALE; vertData[i+2]*=_SCALE;
-// 	}
-
-// 	highX = roundUp(highX, 100);
-// 	highY = roundUp(highY, 100);
-// 	highZ = roundUp(highZ, 100);
-
-// 	printf("Detected world bounds (%f,%f,%f)\n", highX, highY, highZ);
-
-// 	float tileW = TILEWID, vxW;
-
-// 	if (WORLD == 0)
-// 		tileW = 102.400004; //exact increment for my world 0 exported from Unity
-
-// 	vxW = tileW * _SCALE;
-
-// 	int xtiles = (int)ceil(highX / tileW), ytiles = (int)ceil(highZ / tileW);
-
-// 	dtNavMesh *mesh = new dtNavMesh();
-
-// 	dtNavMeshParams parms;
-
-// 	memset(&parms, 0, sizeof(dtNavMeshParams));
-
-// 	parms.tileWidth = tileW;
-// 	parms.tileHeight = tileW;
-
-// 	parms.maxTiles = xtiles * ytiles;
-// 	parms.maxPolys = 65535;
-
-// 	memset(parms.orig, 0, 12);
-
-// 	dtStatus initStat = mesh->init(&parms);
-
-// 	if (!initStat)
-// 	{
-
-// 		printf("dtNavMesh Init failed!\n");
-// 		exit(1);
-// 	}
-
-// 	ushort *vertRef = (ushort *)malloc(numVerts * 2);
-
-// 	for (int yy = 0; yy < ytiles; yy++)
-// 	{
-
-// 		for (int xx = 0; xx < xtiles; xx++)
-// 		{
-
-// 			int vptr = 0, pptr = 0;
-
-// 			float min[3], max[3];
-
-// 			min[0] = xx * tileW;
-// 			min[1] = 0;
-// 			min[2] = yy * tileW;
-
-// 			max[0] = (xx + 1) * tileW;
-// 			max[1] = highY;
-// 			max[2] = (yy + 1) * tileW;
-
-// 			ushort tilePolys[MAXPolys];
-
-// 			float tileVerts[MAXVerts];
-
-// 			int cnt = 0, rcnt = 0;
-
-// 			printf("Tile %d %d\n", xx, yy);
-
-// 			for (int i = 0; i < (numVerts * 3); i += 3)
-// 			{
-
-// 				if (vertData[i] > highX)
-// 					highX = vertData[i];
-
-// 				if (vertData[i + 1] > highY)
-// 					highY = vertData[i + 1];
-
-// 				if (vertData[i + 2] > highZ)
-// 					highZ = vertData[i + 2];
-
-// 				//        vertData[i]*=_SCALE; vertData[i+1]*=_HGTSCALE; vertData[i+2]*=_SCALE;
-
-// 				vertRef[cnt] = 0xffff;
-
-// 				if (vertData[i] >= min[0] && vertData[i + 2] >= min[2])
-// 				{
-
-// 					if (vertData[i] <= max[0] && vertData[i + 2] <= max[2])
-// 					{
-
-// 						////                        printf("%f %f %f\n",vertData[i],vertData[i+1],vertData[i+2]);
-
-// 						tileVerts[vptr++] = vertData[i];
-
-// 						tileVerts[vptr++] = vertData[i + 1];
-
-// 						tileVerts[vptr++] = vertData[i + 2];
-
-// 						vertRef[cnt] = (ushort)rcnt; //backwards reference from vert array
-
-// 						rcnt++;
-// 					}
-// 				}
-
-// 				cnt++;
-// 			}
-
-// 			int numTileVerts = vptr / 3, numTilePolys = 0;
-
-// 			for (int i = 0; i < numInds; i++)
-// 			{
-
-// 				int newInd = vertRef[polys[i]];
-
-// 				if (newInd != 0xffff)
-// 					tilePolys[numTilePolys++] = newInd;
-// 			}
-
-// 			ushort *doubleInds = (ushort *)malloc(numInds * 4);
-
-// 			for (int i = 0; i < numTilePolys; i++)
-// 			{
-
-// 				doubleInds[i * 6] = tilePolys[i * 3];
-
-// 				doubleInds[i * 6 + 1] = tilePolys[i * 3 + 1];
-
-// 				doubleInds[i * 6 + 2] = tilePolys[i * 3 + 2];
-
-// 				doubleInds[i * 6 + 3] = tilePolys[i * 3];
-
-// 				doubleInds[i * 6 + 4] = tilePolys[i * 3 + 1];
-
-// 				doubleInds[i * 6 + 5] = tilePolys[i * 3 + 2];
-// 			}
-
-// 			uchar *polyareas = (uchar *)malloc(numTilePolys);
-
-// 			for (int i = 0; i < numTilePolys; i++)
-// 				polyareas[i] = 0; //******************* passable? or FLAGS
-
-// 			ushort *polyflags = (ushort *)malloc(numTilePolys * 2);
-
-// 			for (int i = 0; i < numTilePolys; i++)
-// 				polyflags[i] = 1; //******************* passable? or AREAS
-
-// 			ushort *iverts = (ushort *)malloc(numTileVerts * 6);
-
-// 			for (i = 0; i < numTileVerts; i++)
-// 			{
-
-// 				iverts[i * 3] = (ushort)(tileVerts[i * 3] * _SCALE);
-
-// 				iverts[i * 3 + 1] = (ushort)(tileVerts[i * 3 + 1] * _HGTSCALE);
-
-// 				iverts[i * 3 + 2] = (ushort)(tileVerts[i * 3 + 2] * _SCALE);
-// 			}
-
-// 			dtNavMeshCreateParams params;
-
-// 			memset(&params, 0, sizeof(params));
-
-// 			params.verts = iverts; // (uint*)vertData;
-
-// 			params.vertCount = numTileVerts;
-
-// 			params.polys = doubleInds; // (uint*)(data+headerSize+verts*12);
-
-// 			params.polyCount = numTilePolys;
-
-// 			params.polyAreas = (uchar *)polyareas;
-
-// 			params.polyFlags = (ushort *)polyflags;
-
-// 			params.nvp = 3;
-
-// 			params.detailMeshes = 0;
-
-// 			params.offMeshConAreas = 0;
-
-// 			params.offMeshConCount = 0;
-
-// 			params.offMeshConDir = 0;
-
-// 			params.offMeshConFlags = 0;
-
-// 			params.offMeshConRad = 0;
-
-// 			params.offMeshConUserID = 0;
-
-// 			params.offMeshConVerts = 0;
-
-// 			params.walkableHeight = 1.8; //*_SCALE;
-
-// 			params.walkableRadius = 0.5; //*_SCALE;
-
-// 			params.walkableClimb = 1.2; //*_SCALE;
-
-// 			memcpy(params.bmin, (float *)min, 12);
-
-// 			memcpy(params.bmax, (float *)max, 12);
-
-// 			//            params.bmin[0]=0; params.bmin[1]=0; params.bmin[2]=0;
-
-// 			//            params.bmax[0]=10000; params.bmax[1]=600; params.bmax[2]=10000;
-
-// 			params.cs = 1 / (float)_SCALE;
-
-// 			params.ch = 1 / (float)_HGTSCALE;
-
-// 			params.buildBvTree = true;
-
-// 			unsigned char *data = NULL;
-// 			int dlen = 0;
-
-// 			if (!dtCreateNavMeshData(&params, &data, &dlen))
-// 				printf("dtCreateNavMeshdata failed! skipping...\n");
-
-// 			else
-// 			{
-
-// 				if (!data)
-// 					dlen = 0;
-
-// 				if (dlen == 0)
-// 				{
-
-// 					printf("ERROR:There was no navmesh data for tile! aborting...\n");
-
-// 					exit(1);
-// 				}
-
-// 				////            printf("--> %d %c %c %c\n",dlen,data[0],data[1],data[2]);
-
-// 				if (!mesh->addTile(data, dlen, DT_TILE_FREE_DATA, yy * 65536 + xx, 0))
-// 				{
-
-// 					printf("addTile failed! aborting...\n");
-// 					exit(1);
-// 				}
-// 			}
-
-// 			free(doubleInds);
-// 			free(iverts);
-// 			free(polyareas);
-// 			free(polyflags);
-// 		}
-// 	}
-
-// 	free(vertRef);
-
-// 	int pathCnt, sPathCnt;
-
-// 	dtPolyRef path[256], straightPathPolys[256];
-
-// 	float spath[256 * 3];
-
-// 	float startV[3] = {4520.762f, 154.73f, 5782.241f}, endV[3] = {4519.002f, 158.5f, 5793.176f}; //let's get around that fence!! :)
-
-// 	dtQueryFilter *filter = new dtQueryFilter();
-
-// 	filter->setIncludeFlags(1);
-
-// 	dtNavMeshQuery *nav = new dtNavMeshQuery();
-
-// 	nav->init(mesh, 2048);
-
-// 	printf("about to navigate...\n");
-
-// 	dtPolyRef m_startRef;
-
-// 	dtPolyRef m_endRef;
-
-// 	float m_polyPickExt[3];
-
-// 	m_polyPickExt[0] = 2;
-
-// 	m_polyPickExt[1] = 10;
-
-// 	m_polyPickExt[2] = 2;
-
-// 	nav->findNearestPoly(startV, m_polyPickExt, filter, &m_startRef, 0);
-
-// 	if (m_startRef == 0)
-// 	{
-// 		printf("ERROR finding polygon near start point\n");
-// 		return 1;
-// 	}
-
-// 	printf("start ref %u\n", (uint)m_startRef);
-
-// 	nav->findNearestPoly(endV, m_polyPickExt, filter, &m_endRef, 0);
-
-// 	if (m_endRef == 0)
-// 	{
-// 		printf("ERROR finding polygon near end point\n");
-// 		return 1;
-// 	}
-
-// 	printf("end ref %u\n", (uint)m_endRef);
-
-// 	//    exit(1);
-
-// 	dtStatus stat = nav->findPath(m_startRef, m_endRef, startV, endV, filter, path, &pathCnt, 256);
-
-// 	if (stat)
-// 		printf("Nav returned path count: %d\n", pathCnt);
-
-// 	if (pathCnt > 0)
-// 	{
-
-// 		dtStatus sstat = nav->findStraightPath(startV, endV, path, pathCnt, spath, 0, straightPathPolys, &sPathCnt, 256);
-
-// 		printf("straight path returned: %d nodes!\n", sPathCnt);
-
-// 		for (int i = 0; i < sPathCnt; i++)
-// 		{
-
-// 			printf("Node: (%f,%f,%f)\n", spath[i * 3], spath[i * 3 + 1], spath[i * 3 + 2]);
-// 		}
-// 	}
-
-// 	return 0;
-// }
-
 /// Reference Doc:
 /// * A discussion how to NavMesh from pre-cull triangles soup
 /// 	* https://groups.google.com/forum/#!topic/recastnavigation/Tjq7G-KUxt8
@@ -414,26 +46,28 @@ extern "C"
 		/// Which means we have to normalize a float to unsigned short
 		int pm_vert_count = qparam->vert_count;							///< The number vertices in the polygon mesh. [Limit: >= 3]
 		int pm_nvp = 3;												    ///< Number maximum number of vertices per polygon. [Limit: >= 3]
-		int pm_polyCount = qparam->triangles_count;					    ///< Number of polygons in the mesh. [Limit: >= 1]
-		auto pm_verts = qparam->verts;								    ///< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
+		int pm_polyCount = qparam->triangles_count;					    ///< Number of polygons in the mesh. [Limit: >= 1]		
 		
 		auto pm_polys = std::unique_ptr<unsigned short[]>(new unsigned short[pm_polyCount * 2 * pm_nvp]);  ///< The polygon data. [Size: #polyCount * 2 * #nvp]		
-		
+		memset(pm_polys.get(), 0, pm_polyCount * 2 * pm_nvp * sizeof(unsigned short));
+
 		// fill the first part of the pm_polys with triangle indices
-		for (int i = 0; i < qparam->triangles_count; i++)
+		for (int i = 0; i < pm_polyCount; i++)
 		{
 			pm_polys[i*pm_nvp*2+0] = qparam->indices[i*pm_nvp+0];
 			pm_polys[i*pm_nvp*2+1] = qparam->indices[i*pm_nvp+1];
 			pm_polys[i*pm_nvp*2+2] = qparam->indices[i*pm_nvp+2];
+			pm_polys[i*pm_nvp*2+3] = 0;
+			pm_polys[i*pm_nvp*2+4] = 0;
+			pm_polys[i*pm_nvp*2+5] = 0;
 		}
+
 		if(!buildMeshAdjacency(pm_polys.get(), pm_polyCount, pm_vert_count, pm_nvp)) {
 			RETURN_ERROR("dtCreateNavMeshdata failed!");
 		}
 
-		// TODO(edwin):
-		// Fill pm_poly		
-		auto pm_polyFlags = std::unique_ptr<unsigned short[]>(new unsigned short[pm_polyCount]);		    ///< The user defined flags assigned to each polygon. [Size: #polyCount]
-		memset(pm_polyFlags.get(), 0, sizeof(unsigned short) * pm_polyCount);		
+		auto pm_polyFlags = std::unique_ptr<uint16_t[]>(new uint16_t[pm_polyCount]);		    ///< The user defined flags assigned to each polygon. [Size: #polyCount]
+		memset(pm_polyFlags.get(), 0, sizeof(uint16_t) * pm_polyCount);		
 		
 		// Referece: Sample_SoloMesh.cpp Line:667
 		for(auto i = 0; i < pm_polyCount; i++)
@@ -445,7 +79,11 @@ extern "C"
 		// We assume all polygon are in the same area
 		memset(pm_polyAreas.get(), 0, sizeof(unsigned char) * pm_polyCount);		
 
-		params.verts = pm_verts;
+		//< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
+		auto pm_verts_p = std::unique_ptr<uint16_t[]>(new uint16_t[pm_vert_count*3]);
+		memcpy(pm_verts_p.get(), qparam->verts, sizeof(uint16_t) * pm_vert_count * 3);
+
+		params.verts = pm_verts_p.get();
 		params.vertCount = pm_vert_count;
 		params.polys = pm_polys.get();
 		params.polyCount = pm_polyCount;
@@ -479,7 +117,7 @@ extern "C"
 		if(navData == NULL) {
 			RETURN_ERROR("dtCreateNavMeshdata return null data");
 		}
-		if(navData == NULL) {
+		if(navDataSize == 0) {
 			RETURN_ERROR("dtCreateNavMeshdata return zero size data");
 		}
 
@@ -534,7 +172,27 @@ extern "C"
 
 		if (dtStatusFailed(status))
 		{
-			RETURN_ERROR("Fail to find nearest poly");
+			RETURN_ERROR("FAIL_TO_FIND_PATH");
+		}
+
+		if( dtStatusDetail(status, DT_INVALID_PARAM) )
+		{
+			RETURN_ERROR("INVALID_PARAM");
+		}
+		// check details
+		if( dtStatusDetail(status, DT_BUFFER_TOO_SMALL) )
+		{
+			RETURN_ERROR("BUFFER_TOO_SMALL");
+		}
+
+		if( dtStatusDetail(status, DT_OUT_OF_NODES) )
+		{
+			RETURN_ERROR("OUT_OF_NODES");
+		}
+
+		if( dtStatusDetail(status, DT_PARTIAL_RESULT) )
+		{
+			RETURN_ERROR("PARTIAL_RESULT");
 		}
 
 		return 1;
@@ -551,12 +209,17 @@ extern "C"
 		assert(result);
 
 		query->filter.setIncludeFlags(POLYFLAGS_WALK);
-		
+
 		dtStatus status = query->q->closestPointOnPoly(input->poly, input->pos, result->pos, 0);
+
+		if( dtStatusDetail(status, DT_INVALID_PARAM) )
+		{
+			RETURN_ERROR("Fail to find path: reason: [Invalid Param]");
+		}		
 
 		if (dtStatusFailed(status))
 		{
-			RETURN_ERROR("Fail to find closest point");
+			RETURN_ERROR("Fail to find closest point: reason[unknown]");
 		}
 
 	 	return 1;
@@ -613,6 +276,8 @@ extern "C"
 		query->filter.setIncludeFlags(POLYFLAGS_WALK);	
 
 		int count = 0;
+
+		assert(sizeof(result->path) / sizeof(uint32_t) == 100);
 				
 		dtStatus status = query->q->findPath(
 			input->start_poly, 
@@ -628,7 +293,27 @@ extern "C"
 		result->path_count = count;
 		if (dtStatusFailed(status))
 		{
-			RETURN_ERROR("Fail to find path");
+			RETURN_ERROR("FAIL_TO_FIND_PATH");
+		}
+
+		if( dtStatusDetail(status, DT_INVALID_PARAM) )
+		{
+			RETURN_ERROR("INVALID_PARAM");
+		}
+		// check details
+		if( dtStatusDetail(status, DT_BUFFER_TOO_SMALL) )
+		{
+			RETURN_ERROR("BUFFER_TOO_SMALL");
+		}
+
+		if( dtStatusDetail(status, DT_OUT_OF_NODES) )
+		{
+			RETURN_ERROR("OUT_OF_NODES");
+		}
+
+		if( dtStatusDetail(status, DT_PARTIAL_RESULT) )
+		{
+			RETURN_ERROR("PARTIAL_RESULT");
 		}
 
 		return 1;

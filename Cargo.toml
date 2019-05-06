@@ -1,3 +1,6 @@
 [workspace]
 
 members = ["crates/*"]
+
+[patch.crates-io]
+recast-detour-sys = { path = 'crates/recast-detour-sys' }
