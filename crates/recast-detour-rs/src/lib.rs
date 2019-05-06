@@ -23,6 +23,7 @@ pub enum Error {
     CreateQueryError(String),
     FindPointError(String),
     FindPathError(String),
+    PartialResult
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -210,6 +211,10 @@ impl RecastQuery {
 
         if res == 0 {
             let error = err.msg().to_string();
+            if error == "PARTIAL_RESULT" {
+                return Err(Error::PartialResult);
+            }
+
             return Err(Error::FindPathError(error));
         }
 
