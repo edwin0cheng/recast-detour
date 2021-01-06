@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <assert.h>
+#include <cstring>
 
 struct recastc_Query
 {
@@ -39,7 +40,7 @@ extern "C"
 	struct recastc_Query *recastc_create_query(recastc_NavMesh* qparam, recastc_Error* error)
 	{
 		dtNavMeshCreateParams params;
-		memset(&params, 0, sizeof(params));
+		std::memset(&params, 0, sizeof(params));
 
 		/// NOTE:
 		/// NavMesh use unsigned short to store position data
@@ -49,7 +50,7 @@ extern "C"
 		int pm_polyCount = qparam->triangles_count;					    ///< Number of polygons in the mesh. [Limit: >= 1]		
 		
 		auto pm_polys = std::unique_ptr<unsigned short[]>(new unsigned short[pm_polyCount * 2 * pm_nvp]);  ///< The polygon data. [Size: #polyCount * 2 * #nvp]		
-		memset(pm_polys.get(), 0, pm_polyCount * 2 * pm_nvp * sizeof(unsigned short));
+		std::memset(pm_polys.get(), 0, pm_polyCount * 2 * pm_nvp * sizeof(unsigned short));
 
 		// fill the first part of the pm_polys with triangle indices
 		for (int i = 0; i < pm_polyCount; i++)
@@ -67,7 +68,7 @@ extern "C"
 		}
 
 		auto pm_polyFlags = std::unique_ptr<uint16_t[]>(new uint16_t[pm_polyCount]);		    ///< The user defined flags assigned to each polygon. [Size: #polyCount]
-		memset(pm_polyFlags.get(), 0, sizeof(uint16_t) * pm_polyCount);		
+		std::memset(pm_polyFlags.get(), 0, sizeof(uint16_t) * pm_polyCount);		
 		
 		// Referece: Sample_SoloMesh.cpp Line:667
 		for(auto i = 0; i < pm_polyCount; i++)
@@ -77,11 +78,11 @@ extern "C"
 		auto pm_polyAreas = std::unique_ptr<unsigned char[]>(new unsigned char[pm_polyCount]);		    ///< The user defined area ids assigned to each polygon. [Size: #polyCount]		
 		// TODO(edwin):
 		// We assume all polygon are in the same area
-		memset(pm_polyAreas.get(), 0, sizeof(unsigned char) * pm_polyCount);		
+		std::memset(pm_polyAreas.get(), 0, sizeof(unsigned char) * pm_polyCount);		
 
 		//< The polygon mesh vertices. [(x, y, z) * #vertCount] [Unit: vx]
 		auto pm_verts_p = std::unique_ptr<uint16_t[]>(new uint16_t[pm_vert_count*3]);
-		memcpy(pm_verts_p.get(), qparam->verts, sizeof(uint16_t) * pm_vert_count * 3);
+		std::memcpy(pm_verts_p.get(), qparam->verts, sizeof(uint16_t) * pm_vert_count * 3);
 
 		params.verts = pm_verts_p.get();
 		params.vertCount = pm_vert_count;
@@ -103,8 +104,8 @@ extern "C"
 		params.walkableClimb = qparam->walkable_climb;
 		params.cs = qparam->cell_size;
 		params.ch = qparam->cell_height;
-		memcpy(params.bmin, &qparam->bmin, sizeof(params.bmin));
-		memcpy(params.bmax, &qparam->bmax, sizeof(params.bmax));
+		std::memcpy(params.bmin, &qparam->bmin, sizeof(params.bmin));
+		std::memcpy(params.bmax, &qparam->bmax, sizeof(params.bmax));
 		params.buildBvTree = true;
 
 		unsigned char* navData = 0;
