@@ -3,6 +3,7 @@ use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
 
+mod util;
 mod nav_obj;
 
 pub use nav_obj::NavObjFile;
