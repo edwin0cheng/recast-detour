@@ -10,7 +10,6 @@ repository = "https://github.com/edwin0cheng/recast-detour"
 license = "MIT"
 
 [dev-dependencies]
-insta = "0.7.4"
 rand = "0.6.5"
 
 [dependencies]

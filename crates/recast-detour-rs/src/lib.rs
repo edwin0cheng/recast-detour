@@ -1,7 +1,7 @@
+use std::collections::HashMap;
 use std::ffi::CStr;
 use std::os::raw::c_void;
 use std::ptr;
-use std::collections::HashMap;
 
 mod nav_obj;
 
@@ -23,11 +23,10 @@ pub enum Error {
     CreateQueryError(String),
     FindPointError(String),
     FindPathError(String),
-    PartialResult
+    PartialResult,
 }
 
 type Result<T> = std::result::Result<T, Error>;
-
 
 /// A Navgation Mesh Data
 #[derive(Debug, Default, Clone)]
@@ -73,7 +72,7 @@ fn world_unit_to_cell_unit(f: f32, bmin: f32, cs: f32) -> u16 {
     f.round() as u16
 }
 
-#[derive(Debug, Copy, Clone, Default)]
+#[derive(Debug, Copy, Clone, Default, PartialEq)]
 pub struct Point([f32; 3]);
 
 impl Point {
@@ -99,25 +98,25 @@ impl From<(f32, f32, f32)> for Point {
 }
 
 pub fn remove_dup(verts: &[u16], indices: &[u16]) -> (Vec<u16>, Vec<u16>) {
-    let mut verts_map : HashMap<(u16,u16,u16), u16> = HashMap::new();
-    let mut idx_map : HashMap<u16, u16> = HashMap::new();
+    let mut verts_map: HashMap<(u16, u16, u16), u16> = HashMap::new();
+    let mut idx_map: HashMap<u16, u16> = HashMap::new();
 
     let n_verts = verts.len() / 3;
     let mut rv = Vec::new();
     let mut ri = Vec::new();
 
     for i in 0..n_verts {
-        let p = (verts[i*3 + 0], verts[i*3 + 1], verts[i*3 + 2]);
-        let i = i as u16;        
-        let new_i = verts_map.entry(p).or_insert_with(||{			
+        let p = (verts[i * 3 + 0], verts[i * 3 + 1], verts[i * 3 + 2]);
+        let i = i as u16;
+        let new_i = verts_map.entry(p).or_insert_with(|| {
             let idx = rv.len() / 3;
-			
-			rv.push(p.0);
+
+            rv.push(p.0);
             rv.push(p.1);
             rv.push(p.2);
-			
-			idx as u16
-		});
+
+            idx as u16
+        });
 
         idx_map.insert(i, *new_i);
     }
@@ -125,8 +124,8 @@ pub fn remove_dup(verts: &[u16], indices: &[u16]) -> (Vec<u16>, Vec<u16>) {
     for idx in indices {
         ri.push(*idx_map.get(idx).unwrap());
     }
-            
-    (rv,ri)
+
+    (rv, ri)
 }
 
 impl RecastQuery {
@@ -134,7 +133,7 @@ impl RecastQuery {
     pub fn new_from_mesh(data: NavMeshData) -> Result<RecastQuery> {
         assert!(data.vertices.len() % 3 == 0);
         assert!(data.indices.len() % 3 == 0);
-        
+
         let (bmin, bmax) = compute_bb(&data.vertices);
 
         let mut cu_verts = Vec::new();
@@ -150,11 +149,11 @@ impl RecastQuery {
             }
         }
         assert!(data.vertices.len() == cu_verts.len());
-        
+
         let (cu_verts, indices) = remove_dup(&cu_verts, &data.indices);
 
         let vert_count = (cu_verts.len() / 3) as u32;
-        let triangles_count = (data.indices.len() / 3) as u32;     
+        let triangles_count = (data.indices.len() / 3) as u32;
 
         let sys_data = sys::RecastNavMeshData {
             verts: cu_verts.as_ptr(),
@@ -188,7 +187,7 @@ impl RecastQuery {
 
         if start_poly == end_poly {
             return Ok(vec![end_p]);
-        }        
+        }
 
         let mut result = sys::RecastPathResult::default();
         let mut err = sys::RecastNavError::zeros();
@@ -218,7 +217,7 @@ impl RecastQuery {
             return Err(Error::FindPathError(error));
         }
 
-        let path = &result.path[0..result.path_count as usize];        
+        let path = &result.path[0..result.path_count as usize];
 
         match path.len() {
             0 => Err(Error::FindPathError("No Path".to_string())),
@@ -228,8 +227,8 @@ impl RecastQuery {
                 // remap the poly and the points
                 let mut res = vec![];
                 let mut p = start_p;
-                for &poly in path.iter() {                    
-                    p = self.find_closest(p, poly)?;                                                   
+                for &poly in path.iter() {
+                    p = self.find_closest(p, poly)?;
                     res.push(p);
                 }
 
@@ -298,7 +297,6 @@ pub fn version() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use insta::*;
 
     fn simple_mesh() -> NavMeshData {
         let vertices = vec![
@@ -329,9 +327,7 @@ mod tests {
 
     #[test]
     fn test_compute_bb() {
-        let data = &[-1.0, 1.0, -1.0, 
-        1.0, 2.0, 2.0, 
-        2.0, -2.0, 1.0];
+        let data = &[-1.0, 1.0, -1.0, 1.0, 2.0, 2.0, 2.0, -2.0, 1.0];
 
         let (bmin, bmax) = compute_bb(data);
 
@@ -354,21 +350,9 @@ mod tests {
             .find_path((0.2, 0.1, 0.4).into(), (0.8, 0.1, 0.5).into(), 0.2)
             .unwrap();
 
-        assert_debug_snapshot_matches!(p, @r###"[
-    Point(
-        [
-            0.2,
-            0.0,
-            0.4
-        ]
-    ),
-    Point(
-        [
-            0.29999924,
-            0.0,
-            0.29999924
-        ]
-    )
-]"###);
+        assert_eq!(
+            p,
+            [Point([0.2, 0.0, 0.4]), Point([0.29999924, 0.0, 0.29999924])]
+        );
     }
 }
