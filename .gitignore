@@ -6,6 +6,5 @@ Cargo.lock
 
 **/*.rs.pending-snap
 
-/crates/recast-detour-sys/recast/build/**
 .vscode/c_cpp_properties.json
 .vscode/launch.json

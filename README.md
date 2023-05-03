@@ -6,9 +6,7 @@
 
 This project do the followings things
 
-* Use `cmake` crate to build the `Recast & Detour` c++ library.
 * Add an very simple c-api for `Detour` Query.
-* Manual binding for that c-api in rust crate (`recast-detour-sys`)
 * An actual rust crate for provide a better usage (`recast-detour-rs`)
 * An augmented obj file format reader for reading NavMesh from a file
 * An demo implementation for *Unity NavMesh* Exporter

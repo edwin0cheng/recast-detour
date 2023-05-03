@@ -1,6 +1,6 @@
 [package]
 name = "recast-detour-rs"
-version = "0.1.3"
+version = "0.2.0"
 authors = ["Edwin Cheng <edwin0cheng@gmail.com>"]
 edition = "2018"
 description = "A simplified (detour only) rust binding for Recast & Detour library"
@@ -10,8 +10,7 @@ repository = "https://github.com/edwin0cheng/recast-detour"
 license = "MIT"
 
 [dev-dependencies]
-insta = "0.7.4"
 rand = "0.6.5"
 
 [dependencies]
-sys = { version = "0.1.1", package = "recast-detour-sys" }
+recastnavigation-sys = {version = "1.0.0", features = ["detour"]}
